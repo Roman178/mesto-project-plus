@@ -1,15 +1,13 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   getUsers, getUserById, createUser, updateUser,
-} from "../controllers/users";
+} from '../controllers/users';
 
 const usersRouter = Router();
 
-usersRouter
-  .get("/", getUsers)
-  .get("/:id", getUserById)
-  .post("/", createUser)
-  .patch("/me", updateUser)
-  .patch("/me/avatar", updateUser);
-
-export { usersRouter };
+export default usersRouter
+  .get('/', getUsers)
+  .get('/:id', getUserById)
+  .post('/', createUser)
+  .patch('/me', updateUser)
+  .patch('/me/avatar', updateUser);

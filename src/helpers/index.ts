@@ -1,13 +1,22 @@
-import { ISuccessResponse, IErrorResponse } from "../types/interfaces";
+import { ISuccessResponse, IErrorResponse } from '../types/interfaces';
 
 const successResponse = (data: any): ISuccessResponse => ({
-  status: "success",
+  status: 'success',
   data,
 });
 
 const errorResponse = (message: string): IErrorResponse => ({
-  status: "error",
+  status: 'error',
   message,
 });
 
-export { successResponse, errorResponse };
+const getInvalidFields = (message: string): string => {
+  const invalidFields: string[] = [];
+  message.split(' ').forEach((word: string, i: number, arr: string[]) => {
+    if (word === 'Path') invalidFields.push(arr[i + 1]);
+  });
+
+  return invalidFields.join(', ');
+};
+
+export { successResponse, errorResponse, getInvalidFields };

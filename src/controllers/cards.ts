@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from "express";
-import { Card } from "../models/card";
-import { successResponse } from "../helpers";
-import { NotFoundError } from "../types/errors";
+import { Request, Response, NextFunction } from 'express';
+import { POST_NOT_FOUND_MESSAGE } from '../types/errors';
+import { Card } from '../models/card';
+import { successResponse } from '../helpers';
+import NotFoundError from '../types/NotFoundError';
 
 const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
@@ -19,9 +20,9 @@ const deleteCard = (req: Request, res: Response, next: NextFunction) => {
   Card.deleteOne({ _id: req.params.cardId })
     .then((data) => {
       if (data.deletedCount === 0) {
-        throw new NotFoundError("Удаляемый пост не найден.");
+        throw new NotFoundError(POST_NOT_FOUND_MESSAGE);
       }
-      res.status(200).send(successResponse({ message: "Пост удалён" }));
+      res.status(200).send(successResponse({ message: 'Пост удалён' }));
     })
     .catch(next);
 };
@@ -37,7 +38,12 @@ const likeCard = (req: Request, res: Response, next: NextFunction) => {
       runValidators: true,
     },
   )
-    .then((data) => res.status(200).send(successResponse(data)))
+    .then((data) => {
+      if (!data) {
+        throw new NotFoundError(POST_NOT_FOUND_MESSAGE);
+      }
+      res.status(200).send(successResponse(data));
+    })
     .catch(next);
 };
 
@@ -52,7 +58,12 @@ const unlikeCard = (req: Request, res: Response, next: NextFunction) => {
       runValidators: true,
     },
   )
-    .then((data) => res.status(200).send(successResponse(data)))
+    .then((data) => {
+      if (!data) {
+        throw new NotFoundError(POST_NOT_FOUND_MESSAGE);
+      }
+      res.status(200).send(successResponse(data));
+    })
     .catch(next);
 };
 

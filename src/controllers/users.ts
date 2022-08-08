@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from "express";
-import { User } from "../models/user";
-import { successResponse } from "../helpers";
-import { NotFoundError } from "../types/errors";
+import { Request, Response, NextFunction } from 'express';
+import { USER_NOT_FOUND_MESSAGE } from '../types/errors';
+import { User } from '../models/user';
+import { successResponse } from '../helpers';
+import NotFoundError from '../types/NotFoundError';
 
 const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
@@ -13,7 +14,7 @@ const getUserById = (req: Request, res: Response, next: NextFunction) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError("Пользователь не найден");
+        throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
       }
       res.status(200).send(successResponse(user));
     })
@@ -33,7 +34,7 @@ const updateUser = (req: Request, res: Response, next: NextFunction) => {
   })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError("Пользователь не найден");
+        throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
       }
       res.status(200).send(successResponse(user));
     })

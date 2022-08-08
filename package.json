@@ -1,14 +1,14 @@
 {
   "name": "starterkits",
   "version": "1.0.0",
-  "description": "< Добавьте описание проекта в свободной форме >",
+  "description": "<MERN pet-project implements CRUD logic>",
   "main": "dist/app.js",
   "scripts": {
     "lint": "npx eslint src/**/*.ts",
     "build": "tsc",
     "dev": "ts-node-dev src/app.ts",
     "start": "ts-node src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "debug": "NODE_OPTIONS='--inspect' ts-node src/app.ts"
   },
   "author": "<Roman178>",
   "license": "ISC",
