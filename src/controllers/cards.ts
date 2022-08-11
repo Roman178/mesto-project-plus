@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { POST_NOT_FOUND_MESSAGE } from '../types/errors';
 import { Card } from '../models/card';
 import { successResponse } from '../helpers';
-import NotFoundError from '../types/NotFoundError';
+import NotFoundError from '../types/Errors/NotFoundError';
 
 const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})

@@ -1,9 +1,27 @@
+import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import { SECRET_KEY } from '../types/constants';
+import AuthError from '../types/Errors/AuthError';
 
-export default (req: Request, res: Response, next: NextFunction) => {
-  (req as any).user = {
-    _id: '62ee48ebac24c26533c50b9a',
-  };
+const auth = (req: Request, res: Response, next: NextFunction) => {
+  const { authorization } = req.headers;
 
-  next();
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    throw new AuthError('Необходима авторизация');
+  }
+
+  const token = authorization.replace('Bearer ', '');
+  let payload;
+
+  try {
+    payload = jwt.verify(token, SECRET_KEY);
+  } catch (err) {
+    throw new AuthError('Необходима авторизация');
+  }
+
+  (req as any).user = payload;
+
+  return next();
 };
+
+export default auth;

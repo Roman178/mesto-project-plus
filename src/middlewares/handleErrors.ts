@@ -1,7 +1,8 @@
 import { ErrorRequestHandler } from 'express';
 import { errorResponse, getInvalidFields } from '../helpers';
-import { POST_NOT_FOUND_MESSAGE, ErrorTypesEnum, USER_NOT_FOUND_MESSAGE } from '../types/errors';
-import BadRequestError from '../types/BadRequestError';
+import { ErrorTypesEnum } from '../types/errors';
+import BadRequestError from '../types/Errors/BadRequestError';
+import ConflictingRequestError from '../types/Errors/ConflictingRequestError';
 
 const handleErrors: ErrorRequestHandler = (err, req, res, next): void => { // eslint-disable-line
   let { statusCode, message } = err;
@@ -21,13 +22,25 @@ const handleErrors: ErrorRequestHandler = (err, req, res, next): void => { // es
       break;
     }
     case ErrorTypesEnum.ERROR:
-      if (message === USER_NOT_FOUND_MESSAGE || message === POST_NOT_FOUND_MESSAGE) {
+      if (statusCode === 401) {
         break;
       } else {
         statusCode = 500;
         message = 'Ошибка сервера';
       }
       break;
+    case ErrorTypesEnum.MONGO_SERVER_ERROR: {
+      if (err.code === 11000) {
+        const conflictError = new ConflictingRequestError('Пользователь с таким email уже существует.');
+        message = conflictError.message;
+        statusCode = conflictError.statusCode;
+        break;
+      } else {
+        statusCode = 500;
+        message = 'Ошибка сервера';
+        break;
+      }
+    }
     default:
       statusCode = 500;
       message = 'Ошибка сервера';

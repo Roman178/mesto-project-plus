@@ -1,8 +1,12 @@
+import bcrypt from 'bcryptjs';
 import { Request, Response, NextFunction } from 'express';
-import { USER_NOT_FOUND_MESSAGE } from '../types/errors';
+import jwt from 'jsonwebtoken';
+import { SECRET_KEY } from '../types/constants';
+import { USER_NOT_FOUND_MESSAGE, INVALID_EMAIL_OR_PASSWORD_MESSAGE } from '../types/errors';
 import { User } from '../models/user';
 import { successResponse } from '../helpers';
-import NotFoundError from '../types/NotFoundError';
+import NotFoundError from '../types/Errors/NotFoundError';
+import AuthError from '../types/Errors/AuthError';
 
 const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
@@ -11,7 +15,7 @@ const getUsers = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getUserById = (req: Request, res: Response, next: NextFunction) => {
-  User.findById(req.params.id)
+  User.findById((req as any).user._id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError(USER_NOT_FOUND_MESSAGE);
@@ -22,9 +26,14 @@ const getUserById = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const createUser = (req: Request, res: Response, next: NextFunction) => {
-  User.create(req.body)
-    .then((user) => res.send(successResponse(user)))
-    .catch(next);
+  bcrypt.hash(req.body.password, 10).then((passwordHash) => {
+    User.create({ ...req.body, password: passwordHash })
+      .then((user) => {
+        const { password, ...rest } = user.toObject();
+        res.send(successResponse(rest));
+      })
+      .catch(next);
+  }).catch(next);
 };
 
 const updateUser = (req: Request, res: Response, next: NextFunction) => {
@@ -41,6 +50,23 @@ const updateUser = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
+const login = (req: Request, res: Response, next: NextFunction) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email }).select('+password').then((user) => {
+    if (!user) {
+      throw new AuthError(INVALID_EMAIL_OR_PASSWORD_MESSAGE);
+    }
+    bcrypt.compare(password, user.password).then((matched) => {
+      if (!matched) {
+        throw new AuthError(INVALID_EMAIL_OR_PASSWORD_MESSAGE);
+      }
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      res.cookie('httpOnly', token).send(successResponse({ token }));
+    });
+  }).catch(next);
+};
+
 export {
-  getUsers, getUserById, createUser, updateUser,
+  getUsers, getUserById, createUser, updateUser, login,
 };
