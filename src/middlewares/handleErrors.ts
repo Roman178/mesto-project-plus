@@ -1,13 +1,14 @@
-import { ErrorRequestHandler } from 'express';
+import {
+  Request, Response, NextFunction, ErrorRequestHandler,
+} from 'express';
 import { errorResponse, getInvalidFields } from '../helpers';
 import { ErrorTypesEnum } from '../types/errors';
 import BadRequestError from '../types/Errors/BadRequestError';
 import ConflictingRequestError from '../types/Errors/ConflictingRequestError';
 
-const handleErrors: ErrorRequestHandler = (err, req, res, next): void => { // eslint-disable-line
+const handleErrors: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction): void => { // eslint-disable-line
   let { statusCode, message } = err;
   const { name } = err;
-
   switch (name) {
     case ErrorTypesEnum.CAST_ERROR: {
       const badReq = new BadRequestError('Поле "_id" некорректно. Не соответсвует типу ObjectId.');

@@ -3,6 +3,7 @@ import { POST_NOT_FOUND_MESSAGE } from '../types/errors';
 import { Card } from '../models/card';
 import { successResponse } from '../helpers';
 import NotFoundError from '../types/Errors/NotFoundError';
+import AuthError from '../types/Errors/AuthError';
 
 const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
@@ -17,14 +18,20 @@ const createCard = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const deleteCard = (req: Request, res: Response, next: NextFunction) => {
-  Card.deleteOne({ _id: req.params.cardId })
-    .then((data) => {
-      if (data.deletedCount === 0) {
-        throw new NotFoundError(POST_NOT_FOUND_MESSAGE);
-      }
-      res.status(200).send(successResponse({ message: 'Пост удалён' }));
-    })
-    .catch(next);
+  Card.findById(req.params.cardId).then((card) => {
+    if ((card?.owner as any).equals((req as any).user._id)) {
+      Card.deleteOne({ _id: req.params.cardId })
+        .then((data) => {
+          if (data.deletedCount === 0) {
+            throw new NotFoundError(POST_NOT_FOUND_MESSAGE);
+          }
+          res.status(200).send(successResponse({ message: 'Пост удалён' }));
+        })
+        .catch(next);
+    } else {
+      throw new AuthError('Пользователь не может удалить чужую карточку.');
+    }
+  }).catch(next);
 };
 
 const likeCard = (req: Request, res: Response, next: NextFunction) => {

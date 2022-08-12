@@ -5,12 +5,7 @@ import AuthError from '../types/Errors/AuthError';
 
 const auth = (req: Request, res: Response, next: NextFunction) => {
   const { authorization } = req.headers;
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new AuthError('Необходима авторизация');
-  }
-
-  const token = authorization.replace('Bearer ', '');
+  const token = authorization!.replace('Bearer ', '');
   let payload;
 
   try {

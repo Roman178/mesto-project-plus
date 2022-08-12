@@ -6,12 +6,14 @@ import {
   likeCard,
   unlikeCard,
 } from '../controllers/cards';
+import createCardValidator from '../validators/createCardValidator';
+import cardIdParamValidator from '../validators/cardIdParamValidator';
 
 const cardsRouter = Router();
 
 export default cardsRouter
   .get('/', getCards)
-  .post('/', createCard)
-  .delete('/:cardId', deleteCard)
-  .put('/:cardId/likes', likeCard)
-  .delete('/:cardId/likes', unlikeCard);
+  .post('/', createCardValidator(), createCard)
+  .delete('/:cardId', cardIdParamValidator(), deleteCard)
+  .put('/:cardId/likes', cardIdParamValidator(), likeCard)
+  .delete('/:cardId/likes', cardIdParamValidator(), unlikeCard);
