@@ -19,4 +19,9 @@ const getInvalidFields = (message: string): string => {
   return invalidFields.join(', ');
 };
 
-export { successResponse, errorResponse, getInvalidFields };
+const urlRegexp = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/; // eslint-disable-line
+const urlValidator = (value: string) => urlRegexp.test(value);
+
+export {
+  successResponse, errorResponse, getInvalidFields, urlValidator, urlRegexp,
+};

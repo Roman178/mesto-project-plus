@@ -3,7 +3,7 @@ import { POST_NOT_FOUND_MESSAGE } from '../types/errors';
 import { Card } from '../models/card';
 import { successResponse } from '../helpers';
 import NotFoundError from '../types/Errors/NotFoundError';
-import AuthError from '../types/Errors/AuthError';
+import ForbiddenError from '../types/Errors/ForbiddenError';
 
 const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
@@ -29,7 +29,7 @@ const deleteCard = (req: Request, res: Response, next: NextFunction) => {
         })
         .catch(next);
     } else {
-      throw new AuthError('Пользователь не может удалить чужую карточку.');
+      throw new ForbiddenError('Пользователь не может удалить чужую карточку.');
     }
   }).catch(next);
 };

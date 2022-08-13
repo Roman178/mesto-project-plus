@@ -1,23 +1,32 @@
 import {
   Request, Response, NextFunction, ErrorRequestHandler,
 } from 'express';
-import { errorResponse, getInvalidFields } from '../helpers';
+import { MongoError } from 'mongodb';
+import { errorResponse, getInvalidFields } from '../helpers'; // eslint-disable-line
 import { ErrorTypesEnum } from '../types/errors';
 import BadRequestError from '../types/Errors/BadRequestError';
 import ConflictingRequestError from '../types/Errors/ConflictingRequestError';
+import { CustomStatusCodeErrors } from '../types/Errors';
 
-const handleErrors: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction): void => { // eslint-disable-line
-  let { statusCode, message } = err;
+const handleErrors: ErrorRequestHandler = (
+  err: Error | CustomStatusCodeErrors | MongoError,
+  req: Request,
+  res: Response,
+  next: NextFunction, // eslint-disable-line
+): void => {
+  let { statusCode, message } = err as CustomStatusCodeErrors;
   const { name } = err;
   switch (name) {
     case ErrorTypesEnum.CAST_ERROR: {
-      const badReq = new BadRequestError('Поле "_id" некорректно. Не соответсвует типу ObjectId.');
+      const badReq = new BadRequestError(
+        'Поле "_id" некорректно. Не соответсвует типу ObjectId.',
+      );
       statusCode = badReq.statusCode;
       message = badReq.message;
       break;
     }
     case ErrorTypesEnum.VALIDATION_ERROR: {
-      const badReq = new BadRequestError(`Поля ${getInvalidFields(message)} не валидны.`);
+      const badReq = new BadRequestError(err.message);
       statusCode = badReq.statusCode;
       message = badReq.message;
       break;
@@ -31,8 +40,10 @@ const handleErrors: ErrorRequestHandler = (err: any, req: Request, res: Response
       }
       break;
     case ErrorTypesEnum.MONGO_SERVER_ERROR: {
-      if (err.code === 11000) {
-        const conflictError = new ConflictingRequestError('Пользователь с таким email уже существует.');
+      if ((err as MongoError).code === 11000) {
+        const conflictError = new ConflictingRequestError(
+          'Пользователь с таким email уже существует.',
+        );
         message = conflictError.message;
         statusCode = conflictError.statusCode;
         break;
@@ -47,9 +58,7 @@ const handleErrors: ErrorRequestHandler = (err: any, req: Request, res: Response
       message = 'Ошибка сервера';
       break;
   }
-  res
-    .status(statusCode)
-    .send(errorResponse(message));
+  res.status(statusCode).send(errorResponse(message));
 };
 
 export default handleErrors;

@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { urlValidator } from '../helpers';
 import { DEFAULT_USER_NAME, DEFAULT_USER_ABOUT, DEFAULT_USER_AVATAR } from '../types/constants';
 
 export interface IUser {
@@ -25,6 +26,10 @@ const userSchema = new Schema<IUser>({
   avatar: {
     type: String,
     default: DEFAULT_USER_AVATAR,
+    validate: {
+      validator: urlValidator,
+      message: 'Поле avatar должно быть ссылкой.',
+    },
   },
   email: {
     type: String,
