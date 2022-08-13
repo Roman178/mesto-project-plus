@@ -2,7 +2,7 @@ import {
   Request, Response, NextFunction, ErrorRequestHandler,
 } from 'express';
 import { MongoError } from 'mongodb';
-import { errorResponse, getInvalidFields } from '../helpers'; // eslint-disable-line
+import { errorResponse } from '../helpers';
 import { ErrorTypesEnum } from '../types/errors';
 import BadRequestError from '../types/Errors/BadRequestError';
 import ConflictingRequestError from '../types/Errors/ConflictingRequestError';
